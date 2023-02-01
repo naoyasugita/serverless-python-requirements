@@ -253,6 +253,7 @@ custom:
       licenseInfo: GPLv3
       allowedAccounts:
         - '*'
+      retain: false
 ```
 
 ## Omitting Packages
