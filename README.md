@@ -237,7 +237,7 @@ functions:
   hello:
     handler: handler.hello
     layers:
-      - { Ref: PythonRequirementsLambdaLayer }
+      - PythonRequirementsLambdaLayerQualifiedArn
 ```
 
 If the layer requires additional or custom configuration, add them onto the `layer` option.
