@@ -1708,7 +1708,12 @@ test("enable layer option doesn't package bottle with noDeploy option", async (t
   process.chdir('tests/layer_nodeploy');
   const path = npm(['pack', '../..']);
   npm(['i', path]);
-  sls(['package'], { env: {} });
+  sls(['package'], {
+    env: {
+      layer: true,
+      noDeploy: ['bottle']
+    },
+  });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
   t.true(zipfiles.includes(`flask${sep}__init__.py`), 'flask is packaged');
   t.false(zipfiles.includes(`bottle.py`), 'bottle is NOT packaged');
