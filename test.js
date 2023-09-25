@@ -1704,18 +1704,35 @@ const brokenOn = (...platforms) => platforms.indexOf(process.platform) != -1;
 //   t.end();
 // });
 
+// test("enable layer option doesn't package bottle with noDeploy option", async (t) => {
+//   process.chdir('tests/layer_nodeploy');
+//   const path = npm(['pack', '../..']);
+//   npm(['i', path]);
+  // sls(['package'], {
+  //   env: {
+  //     layer: true,
+  //     noDeploy: ['bottle']
+  //   },
+  // });
+//   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
+//   t.true(zipfiles.includes(`flask${sep}__init__.py`), 'flask is packaged');
+//   t.false(zipfiles.includes(`bottle.py`), 'bottle is NOT packaged');
+//   t.end();
+// });
+
 test("enable layer option doesn't package bottle with noDeploy option", async (t) => {
-  process.chdir('tests/layer_nodeploy');
+  process.chdir('tests/poetry');
   const path = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], {
     env: {
       layer: true,
-      noDeploy: ['bottle']
+      noDeploy: ['bottle', 'boto3']
     },
   });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
   t.true(zipfiles.includes(`flask${sep}__init__.py`), 'flask is packaged');
   t.false(zipfiles.includes(`bottle.py`), 'bottle is NOT packaged');
+  t.false(zipfiles.includes(`boto3${sep}__init__.py`), 'boto3 is NOT packaged');
   t.end();
 });
