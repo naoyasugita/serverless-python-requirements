@@ -451,12 +451,27 @@ functions:
     vendor: ./hello-vendor # The option is also available at the function level
 ```
 
-## Manual invocations
+## Manual invocation
 
-The `.requirements` and `requirements.zip`(if using zip support) files are left
-behind to speed things up on subsequent deploys. To clean them up, run
-`sls requirements clean`. You can also create them (and `unzip_requirements` if
-using zip support) manually with `sls requirements install`.
+The `.requirements` and `requirements.zip` (if using zip support) files are left
+behind to speed things up on subsequent deploys. To clean them up, run:
+
+```plaintext
+sls requirements clean
+```
+
+You can also create them (and `unzip_requirements` if
+using zip support) manually with:
+
+```plaintext
+sls requirements install
+```
+
+The pip download/static cache is outside the serverless folder, and should be manually cleaned when i.e. changing python versions:
+
+```plaintext
+sls requirements cleanCache
+```
 
 ## Invalidate requirements caches on package
 
@@ -566,9 +581,34 @@ package:
     - '**'
 ```
 
+## Custom Provider Support
+
+### Scaleway
+
+This plugin is compatible with the [Scaleway Serverless Framework Plugin](https://github.com/scaleway/serverless-scaleway-functions) to package dependencies for Python functions deployed on [Scaleway](https://www.scaleway.com/en/serverless-functions/). To use it, add the following to your `serverless.yml`:
+
+```yaml
+provider:
+  name: scaleway
+  runtime: python311
+
+plugins:
+  - serverless-python-requirements
+  - serverless-scaleway-functions
+```
+
+To handle native dependencies, it's recommended to use the Docker builder with the image provided by Scaleway:
+
+```yaml
+custom:
+  pythonRequirements:
+    # Can use any Python version supported by Scaleway
+    dockerImage: rg.fr-par.scw.cloud/scwfunctionsruntimes-public/python-dep:3.11
+```
+
 ## Contributors
 
-- [@dschep](https://github.com/dschep) - Lead developer & original maintainer
+- [@dschep](https://github.com/dschep) - Original developer
 - [@azurelogic](https://github.com/azurelogic) - logging & documentation fixes
 - [@abetomo](https://github.com/abetomo) - style & linting
 - [@angstwad](https://github.com/angstwad) - `deploy --function` support

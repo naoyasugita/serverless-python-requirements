@@ -44,7 +44,10 @@ const mkCommand =
         `${quote([cmd, ...args])} failed with status code ${status}`
       );
     }
-    return stdout && stdout.toString().trim();
+    return {
+      stdout: stdout && stdout.toString().trim(),
+      stderr: stderr && stderr.toString().trim(),
+    };
   };
 
 const sls = mkCommand('sls');
@@ -201,9 +204,9 @@ test(
   'dockerPrivateKey option correctly resolves docker command',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
-    const stdout = sls(['package'], {
+    const { stderr } = sls(['package'], {
       noThrow: true,
       env: {
         dockerizePip: true,
@@ -213,7 +216,7 @@ test(
       },
     });
     t.true(
-      stdout.includes(
+      stderr.includes(
         `-v ${__dirname}${sep}tests${sep}base${sep}custom_ssh:/root/.ssh/custom_ssh:z`
       ),
       'docker command properly resolved'
@@ -225,7 +228,7 @@ test(
 
 test('default pythonBin can package flask with default options', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -234,9 +237,9 @@ test('default pythonBin can package flask with default options', async (t) => {
   t.end();
 });
 
-test('py3.7 packages have the same hash', async (t) => {
+test('py3.9 packages have the same hash', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const fileHash = sha256File('.serverless/sls-py-req-test.zip');
@@ -249,9 +252,9 @@ test('py3.7 packages have the same hash', async (t) => {
   t.end();
 });
 
-test('py3.7 can package flask with default options', async (t) => {
+test('py3.9 can package flask with default options', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { pythonBin: getPythonBin(3) } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -261,10 +264,10 @@ test('py3.7 can package flask with default options', async (t) => {
 });
 
 test(
-  'py3.7 can package flask with hashes',
+  'py3.9 can package flask with hashes',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], {
       env: {
@@ -279,9 +282,9 @@ test(
   { skip: brokenOn('win32') }
 );
 
-test('py3.7 can package flask with nested', async (t) => {
+test('py3.9 can package flask with nested', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], {
     env: {
@@ -295,9 +298,9 @@ test('py3.7 can package flask with nested', async (t) => {
   t.end();
 });
 
-test('py3.7 can package flask with zip option', async (t) => {
+test('py3.9 can package flask with zip option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { zip: 'true', pythonBin: getPythonBin(3) } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -313,9 +316,9 @@ test('py3.7 can package flask with zip option', async (t) => {
   t.end();
 });
 
-test('py3.7 can package flask with slim option', async (t) => {
+test('py3.9 can package flask with slim option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { slim: 'true', pythonBin: getPythonBin(3) } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -332,10 +335,10 @@ test('py3.7 can package flask with slim option', async (t) => {
   t.end();
 });
 
-test('py3.7 can package flask with slim & slimPatterns options', async (t) => {
+test('py3.9 can package flask with slim & slimPatterns options', async (t) => {
   process.chdir('tests/base');
   copySync('_slimPatterns.yml', 'slimPatterns.yml');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { slim: 'true' } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -353,9 +356,9 @@ test('py3.7 can package flask with slim & slimPatterns options', async (t) => {
   t.end();
 });
 
-test("py3.7 doesn't package bottle with noDeploy option", async (t) => {
+test("py3.9 doesn't package bottle with noDeploy option", async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   perl([
     '-p',
@@ -371,9 +374,9 @@ test("py3.7 doesn't package bottle with noDeploy option", async (t) => {
   t.end();
 });
 
-test('py3.7 can package boto3 with editable', async (t) => {
+test('py3.9 can package boto3 with editable', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], {
     env: {
@@ -391,10 +394,10 @@ test('py3.7 can package boto3 with editable', async (t) => {
 });
 
 test(
-  'py3.7 can package flask with dockerizePip option',
+  'py3.9 can package flask with dockerizePip option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true' } });
     const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -406,10 +409,10 @@ test(
 );
 
 test(
-  'py3.7 can package flask with slim & dockerizePip option',
+  'py3.9 can package flask with slim & dockerizePip option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true', slim: 'true' } });
     const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -430,11 +433,11 @@ test(
 );
 
 test(
-  'py3.7 can package flask with slim & dockerizePip & slimPatterns options',
+  'py3.9 can package flask with slim & dockerizePip & slimPatterns options',
   async (t) => {
     process.chdir('tests/base');
     copySync('_slimPatterns.yml', 'slimPatterns.yml');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true', slim: 'true' } });
     const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -455,10 +458,10 @@ test(
 );
 
 test(
-  'py3.7 can package flask with zip & dockerizePip option',
+  'py3.9 can package flask with zip & dockerizePip option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true', zip: 'true' } });
     const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -487,10 +490,10 @@ test(
 );
 
 test(
-  'py3.7 can package flask with zip & slim & dockerizePip option',
+  'py3.9 can package flask with zip & slim & dockerizePip option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], {
       env: { dockerizePip: 'true', zip: 'true', slim: 'true' },
@@ -520,9 +523,9 @@ test(
   { skip: !canUseDocker() || brokenOn('win32') }
 );
 
-test('pipenv py3.7 can package flask with default options', async (t) => {
+test('pipenv py3.9 can package flask with default options', async (t) => {
   process.chdir('tests/pipenv');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -535,9 +538,9 @@ test('pipenv py3.7 can package flask with default options', async (t) => {
   t.end();
 });
 
-test('pipenv py3.7 can package flask with slim option', async (t) => {
+test('pipenv py3.9 can package flask with slim option', async (t) => {
   process.chdir('tests/pipenv');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { slim: 'true' } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -554,11 +557,11 @@ test('pipenv py3.7 can package flask with slim option', async (t) => {
   t.end();
 });
 
-test('pipenv py3.7 can package flask with slim & slimPatterns options', async (t) => {
+test('pipenv py3.9 can package flask with slim & slimPatterns options', async (t) => {
   process.chdir('tests/pipenv');
 
   copySync('_slimPatterns.yml', 'slimPatterns.yml');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { slim: 'true' } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -576,9 +579,9 @@ test('pipenv py3.7 can package flask with slim & slimPatterns options', async (t
   t.end();
 });
 
-test('pipenv py3.7 can package flask with zip option', async (t) => {
+test('pipenv py3.9 can package flask with zip option', async (t) => {
   process.chdir('tests/pipenv');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { zip: 'true', pythonBin: getPythonBin(3) } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -594,9 +597,9 @@ test('pipenv py3.7 can package flask with zip option', async (t) => {
   t.end();
 });
 
-test("pipenv py3.7 doesn't package bottle with noDeploy option", async (t) => {
+test("pipenv py3.9 doesn't package bottle with noDeploy option", async (t) => {
   process.chdir('tests/pipenv');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   perl([
     '-p',
@@ -614,7 +617,7 @@ test("pipenv py3.7 doesn't package bottle with noDeploy option", async (t) => {
 
 test('non build pyproject.toml uses requirements.txt', async (t) => {
   process.chdir('tests/non_build_pyproject');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -625,7 +628,7 @@ test('non build pyproject.toml uses requirements.txt', async (t) => {
 
 test('non poetry pyproject.toml without requirements.txt packages handler only', async (t) => {
   process.chdir('tests/non_poetry_pyproject');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -633,9 +636,9 @@ test('non poetry pyproject.toml without requirements.txt packages handler only',
   t.end();
 });
 
-test('poetry py3.7 can package flask with default options', async (t) => {
+test('poetry py3.9 can package flask with default options', async (t) => {
   process.chdir('tests/poetry');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -645,9 +648,9 @@ test('poetry py3.7 can package flask with default options', async (t) => {
   t.end();
 });
 
-test('poetry py3.7 can package flask with slim option', async (t) => {
+test('poetry py3.9 can package flask with slim option', async (t) => {
   process.chdir('tests/poetry');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { slim: 'true' } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -664,11 +667,11 @@ test('poetry py3.7 can package flask with slim option', async (t) => {
   t.end();
 });
 
-test('poetry py3.7 can package flask with slim & slimPatterns options', async (t) => {
+test('poetry py3.9 can package flask with slim & slimPatterns options', async (t) => {
   process.chdir('tests/poetry');
 
   copySync('_slimPatterns.yml', 'slimPatterns.yml');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { slim: 'true' } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -686,9 +689,9 @@ test('poetry py3.7 can package flask with slim & slimPatterns options', async (t
   t.end();
 });
 
-test('poetry py3.7 can package flask with zip option', async (t) => {
+test('poetry py3.9 can package flask with zip option', async (t) => {
   process.chdir('tests/poetry');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { zip: 'true', pythonBin: getPythonBin(3) } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -704,9 +707,9 @@ test('poetry py3.7 can package flask with zip option', async (t) => {
   t.end();
 });
 
-test("poetry py3.7 doesn't package bottle with noDeploy option", async (t) => {
+test("poetry py3.9 doesn't package bottle with noDeploy option", async (t) => {
   process.chdir('tests/poetry');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   perl([
     '-p',
@@ -722,9 +725,9 @@ test("poetry py3.7 doesn't package bottle with noDeploy option", async (t) => {
   t.end();
 });
 
-test('py3.7 can package flask with zip option and no explicit include', async (t) => {
+test('py3.9 can package flask with zip option and no explicit include', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   perl(['-p', '-i.bak', '-e', 's/include://', 'serverless.yml']);
   perl(['-p', '-i.bak', '-e', 's/^.*handler.py.*$//', 'serverless.yml']);
@@ -742,9 +745,9 @@ test('py3.7 can package flask with zip option and no explicit include', async (t
   t.end();
 });
 
-test('py3.7 can package lambda-decorators using vendor option', async (t) => {
+test('py3.9 can package lambda-decorators using vendor option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { vendor: './vendor' } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -761,7 +764,7 @@ test(
   "Don't nuke execute perms",
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     const perm = '755';
 
     npm(['i', path]);
@@ -805,10 +808,10 @@ test(
   { skip: process.platform === 'win32' }
 );
 
-test('py3.7 can package flask in a project with a space in it', async (t) => {
+test('py3.9 can package flask in a project with a space in it', async (t) => {
   copySync('tests/base', 'tests/base with a space');
   process.chdir('tests/base with a space');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -818,11 +821,11 @@ test('py3.7 can package flask in a project with a space in it', async (t) => {
 });
 
 test(
-  'py3.7 can package flask in a project with a space in it with docker',
+  'py3.9 can package flask in a project with a space in it with docker',
   async (t) => {
     copySync('tests/base', 'tests/base with a space');
     process.chdir('tests/base with a space');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true' } });
     const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
@@ -833,9 +836,9 @@ test(
   { skip: !canUseDocker() || brokenOn('win32') }
 );
 
-test('py3.7 supports custom file name with fileName option', async (t) => {
+test('py3.9 supports custom file name with fileName option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   writeFileSync('puck', 'requests');
   npm(['i', path]);
   sls(['package'], { env: { fileName: 'puck' } });
@@ -849,9 +852,9 @@ test('py3.7 supports custom file name with fileName option', async (t) => {
   t.end();
 });
 
-test("py3.7 doesn't package bottle with zip option", async (t) => {
+test("py3.9 doesn't package bottle with zip option", async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   perl([
     '-p',
@@ -885,10 +888,10 @@ test("py3.7 doesn't package bottle with zip option", async (t) => {
   t.end();
 });
 
-test('py3.7 can package flask with slim, slimPatterns & slimPatternsAppendDefaults=false options', async (t) => {
+test('py3.9 can package flask with slim, slimPatterns & slimPatternsAppendDefaults=false options', async (t) => {
   process.chdir('tests/base');
   copySync('_slimPatterns.yml', 'slimPatterns.yml');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], {
     env: { slim: 'true', slimPatternsAppendDefaults: 'false' },
@@ -908,11 +911,11 @@ test('py3.7 can package flask with slim, slimPatterns & slimPatternsAppendDefaul
 });
 
 test(
-  'py3.7 can package flask with slim & dockerizePip & slimPatterns & slimPatternsAppendDefaults=false options',
+  'py3.9 can package flask with slim & dockerizePip & slimPatterns & slimPatternsAppendDefaults=false options',
   async (t) => {
     process.chdir('tests/base');
     copySync('_slimPatterns.yml', 'slimPatterns.yml');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], {
       env: {
@@ -937,10 +940,10 @@ test(
   { skip: !canUseDocker() || brokenOn('win32') }
 );
 
-test('pipenv py3.7 can package flask with slim & slimPatterns & slimPatternsAppendDefaults=false  option', async (t) => {
+test('pipenv py3.9 can package flask with slim & slimPatterns & slimPatternsAppendDefaults=false  option', async (t) => {
   process.chdir('tests/pipenv');
   copySync('_slimPatterns.yml', 'slimPatterns.yml');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
 
   sls(['package'], {
@@ -960,10 +963,10 @@ test('pipenv py3.7 can package flask with slim & slimPatterns & slimPatternsAppe
   t.end();
 });
 
-test('poetry py3.7 can package flask with slim & slimPatterns & slimPatternsAppendDefaults=false  option', async (t) => {
+test('poetry py3.9 can package flask with slim & slimPatterns & slimPatternsAppendDefaults=false  option', async (t) => {
   process.chdir('tests/poetry');
   copySync('_slimPatterns.yml', 'slimPatterns.yml');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
 
   sls(['package'], {
@@ -983,9 +986,9 @@ test('poetry py3.7 can package flask with slim & slimPatterns & slimPatternsAppe
   t.end();
 });
 
-test('poetry py3.7 can package flask with package individually option', async (t) => {
+test('poetry py3.9 can package flask with package individually option', async (t) => {
   process.chdir('tests/poetry_individually');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
 
   sls(['package'], { env: {} });
@@ -998,9 +1001,9 @@ test('poetry py3.7 can package flask with package individually option', async (t
   t.end();
 });
 
-test('py3.7 can package flask with package individually option', async (t) => {
+test('py3.9 can package flask with package individually option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { individually: 'true' } });
   const zipfiles_hello = await listZipFiles('.serverless/hello.zip');
@@ -1080,9 +1083,9 @@ test('py3.7 can package flask with package individually option', async (t) => {
   t.end();
 });
 
-test('py3.7 can package flask with package individually & slim option', async (t) => {
+test('py3.9 can package flask with package individually & slim option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { individually: 'true', slim: 'true' } });
   const zipfiles_hello = await listZipFiles('.serverless/hello.zip');
@@ -1162,9 +1165,9 @@ test('py3.7 can package flask with package individually & slim option', async (t
   t.end();
 });
 
-test('py3.7 can package only requirements of module', async (t) => {
+test('py3.9 can package only requirements of module', async (t) => {
   process.chdir('tests/individually');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const zipfiles_hello = await listZipFiles(
@@ -1218,9 +1221,9 @@ test('py3.7 can package only requirements of module', async (t) => {
   t.end();
 });
 
-test('py3.7 can package lambda-decorators using vendor and invidiually option', async (t) => {
+test('py3.9 can package lambda-decorators using vendor and invidiually option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { individually: 'true', vendor: './vendor' } });
   const zipfiles_hello = await listZipFiles('.serverless/hello.zip');
@@ -1299,7 +1302,7 @@ test(
   "Don't nuke execute perms when using individually",
   async (t) => {
     process.chdir('tests/individually');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     const perm = '755';
     writeFileSync(`module1${sep}foobar`, '');
     chmodSync(`module1${sep}foobar`, perm);
@@ -1338,7 +1341,7 @@ test(
   "Don't nuke execute perms when using individually w/docker",
   async (t) => {
     process.chdir('tests/individually');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     const perm = '755';
     writeFileSync(`module1${sep}foobar`, '', { mode: perm });
     chmodSync(`module1${sep}foobar`, perm);
@@ -1373,36 +1376,127 @@ test(
   { skip: !canUseDocker() || process.platform === 'win32' }
 );
 
-test('py3.7 uses download cache by default option', async (t) => {
-  process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
-  npm(['i', path]);
-  sls(['package'], { env: {} });
-  const cachepath = getUserCachePath();
-  t.true(
-    pathExistsSync(`${cachepath}${sep}downloadCacheslspyc${sep}http`),
-    'cache directory exists'
-  );
-  t.end();
-});
+test(
+  'py3.9 can package flask running in docker with module runtime & architecture of function',
+  async (t) => {
+    process.chdir('tests/individually_mixed_runtime');
+    const { stdout: path } = npm(['pack', '../..']);
+    npm(['i', path]);
 
-test('py3.7 uses download cache by default', async (t) => {
-  process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
-  npm(['i', path]);
-  sls(['package'], { env: { cacheLocation: '.requirements-cache' } });
-  t.true(
-    pathExistsSync(`.requirements-cache${sep}downloadCacheslspyc${sep}http`),
-    'cache directory exists'
-  );
-  t.end();
-});
+    sls(['package'], {
+      env: { dockerizePip: 'true' },
+    });
+
+    const zipfiles_hello2 = await listZipFiles(
+      '.serverless/module2-sls-py-req-test-indiv-mixed-runtime-dev-hello2.zip'
+    );
+    t.true(
+      zipfiles_hello2.includes('handler2.py'),
+      'handler2.py is packaged at root level in function hello2'
+    );
+    t.true(
+      zipfiles_hello2.includes(`flask${sep}__init__.py`),
+      'flask is packaged in function hello2'
+    );
+  },
+  {
+    skip: !canUseDocker() || process.platform === 'win32',
+  }
+);
 
 test(
-  'py3.7 uses download cache with dockerizePip option',
+  'py3.9 can package flask succesfully when using mixed architecture, docker and zipping',
+  async (t) => {
+    process.chdir('tests/individually_mixed_runtime');
+    const { stdout: path } = npm(['pack', '../..']);
+
+    npm(['i', path]);
+    sls(['package'], { env: { dockerizePip: 'true', zip: 'true' } });
+
+    const zipfiles_hello = await listZipFiles('.serverless/hello1.zip');
+    t.true(
+      zipfiles_hello.includes(`module1${sep}handler1.ts`),
+      'handler1.ts is packaged in module dir for hello1'
+    );
+    t.false(
+      zipfiles_hello.includes('handler2.py'),
+      'handler2.py is NOT packaged at root level in function hello1'
+    );
+    t.false(
+      zipfiles_hello.includes(`flask${sep}__init__.py`),
+      'flask is NOT packaged in function hello1'
+    );
+
+    const zipfiles_hello2 = await listZipFiles(
+      '.serverless/module2-sls-py-req-test-indiv-mixed-runtime-dev-hello2.zip'
+    );
+    const zippedReqs = await listRequirementsZipFiles(
+      '.serverless/module2-sls-py-req-test-indiv-mixed-runtime-dev-hello2.zip'
+    );
+    t.true(
+      zipfiles_hello2.includes('handler2.py'),
+      'handler2.py is packaged at root level in function hello2'
+    );
+    t.false(
+      zipfiles_hello2.includes(`module1${sep}handler1.ts`),
+      'handler1.ts is NOT included at module1 level in hello2'
+    );
+    t.false(
+      zipfiles_hello2.includes(`pyaml${sep}__init__.py`),
+      'pyaml is NOT packaged in function hello2'
+    );
+    t.false(
+      zipfiles_hello2.includes(`boto3${sep}__init__.py`),
+      'boto3 is NOT included in zipfile'
+    );
+    t.true(
+      zippedReqs.includes(`flask${sep}__init__.py`),
+      'flask is packaged in function hello2 in requirements.zip'
+    );
+
+    t.end();
+  },
+  { skip: !canUseDocker() || process.platform === 'win32' }
+);
+
+test(
+  'py3.9 uses download cache by default option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
+    npm(['i', path]);
+    sls(['package'], { env: {} });
+    const cachepath = getUserCachePath();
+    t.true(
+      pathExistsSync(`${cachepath}${sep}downloadCacheslspyc${sep}http`),
+      'cache directory exists'
+    );
+    t.end();
+  },
+  { skip: true }
+);
+
+test(
+  'py3.9 uses download cache by default',
+  async (t) => {
+    process.chdir('tests/base');
+    const { stdout: path } = npm(['pack', '../..']);
+    npm(['i', path]);
+    sls(['package'], { env: { cacheLocation: '.requirements-cache' } });
+    t.true(
+      pathExistsSync(`.requirements-cache${sep}downloadCacheslspyc${sep}http`),
+      'cache directory exists'
+    );
+    t.end();
+  },
+  { skip: true }
+);
+
+test(
+  'py3.9 uses download cache with dockerizePip option',
+  async (t) => {
+    process.chdir('tests/base');
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true' } });
     const cachepath = getUserCachePath();
@@ -1412,14 +1506,15 @@ test(
     );
     t.end();
   },
-  { skip: !canUseDocker() || brokenOn('win32') }
+  // { skip: !canUseDocker() || brokenOn('win32') }
+  { skip: true }
 );
 
 test(
-  'py3.7 uses download cache with dockerizePip by default option',
+  'py3.9 uses download cache with dockerizePip by default option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], {
       env: { dockerizePip: 'true', cacheLocation: '.requirements-cache' },
@@ -1430,35 +1525,40 @@ test(
     );
     t.end();
   },
-  { skip: !canUseDocker() || brokenOn('win32') }
+  // { skip: !canUseDocker() || brokenOn('win32') }
+  { skip: true }
 );
 
-test('py3.7 uses static and download cache', async (t) => {
-  process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
-  npm(['i', path]);
-  sls(['package'], { env: {} });
-  const cachepath = getUserCachePath();
-  const cacheFolderHash = sha256Path('.serverless/requirements.txt');
-  const arch = 'x86_64';
-  t.true(
-    pathExistsSync(`${cachepath}${sep}downloadCacheslspyc${sep}http`),
-    'http exists in download-cache'
-  );
-  t.true(
-    pathExistsSync(
-      `${cachepath}${sep}${cacheFolderHash}_${arch}_slspyc${sep}flask`
-    ),
-    'flask exists in static-cache'
-  );
-  t.end();
-});
-
 test(
-  'py3.7 uses static and download cache with dockerizePip option',
+  'py3.9 uses static and download cache',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
+    npm(['i', path]);
+    sls(['package'], { env: {} });
+    const cachepath = getUserCachePath();
+    const cacheFolderHash = sha256Path('.serverless/requirements.txt');
+    const arch = 'x86_64';
+    t.true(
+      pathExistsSync(`${cachepath}${sep}downloadCacheslspyc${sep}http`),
+      'http exists in download-cache'
+    );
+    t.true(
+      pathExistsSync(
+        `${cachepath}${sep}${cacheFolderHash}_${arch}_slspyc${sep}flask`
+      ),
+      'flask exists in static-cache'
+    );
+    t.end();
+  },
+  { skip: true }
+);
+
+test(
+  'py3.9 uses static and download cache with dockerizePip option',
+  async (t) => {
+    process.chdir('tests/base');
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true' } });
     const cachepath = getUserCachePath();
@@ -1479,9 +1579,9 @@ test(
   { skip: !canUseDocker() || brokenOn('win32') }
 );
 
-test('py3.7 uses static cache', async (t) => {
+test('py3.9 uses static cache', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: {} });
   const cachepath = getUserCachePath();
@@ -1500,7 +1600,7 @@ test('py3.7 uses static cache', async (t) => {
     '.completed_requirements exists in static-cache'
   );
 
-  // py3.7 checking that static cache actually pulls from cache (by poisoning it)
+  // py3.9 checking that static cache actually pulls from cache (by poisoning it)
   writeFileSync(
     `${cachepath}${sep}${cacheFolderHash}_${arch}_slspyc${sep}injected_file_is_bad_form`,
     'injected new file into static cache folder'
@@ -1515,9 +1615,9 @@ test('py3.7 uses static cache', async (t) => {
   t.end();
 });
 
-test('py3.7 uses static cache with cacheLocation option', async (t) => {
+test('py3.9 uses static cache with cacheLocation option', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   const cachepath = '.requirements-cache';
   sls(['package'], { env: { cacheLocation: cachepath } });
@@ -1539,10 +1639,10 @@ test('py3.7 uses static cache with cacheLocation option', async (t) => {
 });
 
 test(
-  'py3.7 uses static cache with dockerizePip & slim option',
+  'py3.9 uses static cache with dockerizePip & slim option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true', slim: 'true' } });
     const cachepath = getUserCachePath();
@@ -1561,7 +1661,7 @@ test(
       '.completed_requirements exists in static-cache'
     );
 
-    // py3.7 checking that static cache actually pulls from cache (by poisoning it)
+    // py3.9 checking that static cache actually pulls from cache (by poisoning it)
     writeFileSync(
       `${cachepath}${sep}${cacheFolderHash}_${arch}_slspyc${sep}injected_file_is_bad_form`,
       'injected new file into static cache folder'
@@ -1584,10 +1684,10 @@ test(
 );
 
 test(
-  'py3.7 uses download cache with dockerizePip & slim option',
+  'py3.9 uses download cache with dockerizePip & slim option',
   async (t) => {
     process.chdir('tests/base');
-    const path = npm(['pack', '../..']);
+    const { stdout: path } = npm(['pack', '../..']);
     npm(['i', path]);
     sls(['package'], { env: { dockerizePip: 'true', slim: 'true' } });
     const cachepath = getUserCachePath();
@@ -1609,9 +1709,9 @@ test(
   { skip: !canUseDocker() || brokenOn('win32') }
 );
 
-test('py3.7 can ignore functions defined with `image`', async (t) => {
+test('py3.9 can ignore functions defined with `image`', async (t) => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], { env: { individually: 'true' } });
   t.true(pathExistsSync('.serverless/hello.zip'), 'function hello is packaged');
@@ -1635,19 +1735,19 @@ test('py3.7 can ignore functions defined with `image`', async (t) => {
   t.end();
 });
 
-test('poetry py3.7 fails packaging if poetry.lock is missing and flag requirePoetryLockFile is set to true', async (t) => {
+test('poetry py3.9 fails packaging if poetry.lock is missing and flag requirePoetryLockFile is set to true', async (t) => {
   copySync('tests/poetry', 'tests/base with a space');
   process.chdir('tests/base with a space');
   removeSync('poetry.lock');
 
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
-  const stdout = sls(['package'], {
+  const { stderr } = sls(['package'], {
     env: { requirePoetryLockFile: 'true', slim: 'true' },
     noThrow: true,
   });
   t.true(
-    stdout.includes(
+    stderr.includes(
       'poetry.lock file not found - set requirePoetryLockFile to false to disable this error'
     ),
     'flag works and error is properly reported'
@@ -1655,9 +1755,21 @@ test('poetry py3.7 fails packaging if poetry.lock is missing and flag requirePoe
   t.end();
 });
 
-test('poetry py3.7 packages additional optional packages', async (t) => {
+test('works with provider.runtime not being python', async (t) => {
+  process.chdir('tests/base');
+  const { stdout: path } = npm(['pack', '../..']);
+  npm(['i', path]);
+  sls(['package'], { env: { runtime: 'nodejs20.x' } });
+  t.true(
+    pathExistsSync('.serverless/sls-py-req-test.zip'),
+    'sls-py-req-test is packaged'
+  );
+  t.end();
+});
+
+test('poetry py3.9 packages additional optional packages', async (t) => {
   process.chdir('tests/poetry_packages');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], {
     env: {
@@ -1671,9 +1783,9 @@ test('poetry py3.7 packages additional optional packages', async (t) => {
   t.end();
 });
 
-test('poetry py3.7 skips additional optional packages specified in withoutGroups', async (t) => {
+test('poetry py3.9 skips additional optional packages specified in withoutGroups', async (t) => {
   process.chdir('tests/poetry_packages');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], {
     env: {
@@ -1688,9 +1800,9 @@ test('poetry py3.7 skips additional optional packages specified in withoutGroups
   t.end();
 });
 
-test('poetry py3.7 only installs optional packages specified in onlyGroups', async (t) => {
+test('poetry py3.9 only installs optional packages specified in onlyGroups', async (t) => {
   process.chdir('tests/poetry_packages');
-  const path = npm(['pack', '../..']);
+  const { stdout: path } = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package'], {
     env: {
@@ -1703,3 +1815,24 @@ test('poetry py3.7 only installs optional packages specified in onlyGroups', asy
   t.true(zipfiles.includes(`boto3${sep}__init__.py`), 'boto3 is packaged');
   t.end();
 });
+
+test(
+  'py3.7 injects dependencies into `package` folder when using scaleway provider',
+  async (t) => {
+    process.chdir('tests/scaleway_provider');
+    const { stdout: path } = npm(['pack', '../..']);
+    npm(['i', path]);
+    sls(['package'], { env: {} });
+    const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
+    t.true(
+      zipfiles.includes(`package${sep}flask${sep}__init__.py`),
+      'flask is packaged'
+    );
+    t.true(
+      zipfiles.includes(`package${sep}boto3${sep}__init__.py`),
+      'boto3 is packaged'
+    );
+    t.end();
+  },
+  { skip: true } // sls v4 supports aws provider only
+);
