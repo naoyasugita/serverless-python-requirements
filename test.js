@@ -1843,6 +1843,9 @@ test('layerRequirements with retain option', async (t) => {
   npm(['i', path]);
   sls(['package'], { env: { layer: JSON.stringify({ retain: true }) } });
   const zipfiles = await listZipFiles('.serverless/sls-py-req-test.zip');
-  t.true(zipfiles.includes('pythonRequirements.zip'), 'pythonRequirements.zip is packaged');
+  t.true(
+    zipfiles.includes('pythonRequirements.zip'),
+    'pythonRequirements.zip is packaged'
+  );
   t.end();
 });
