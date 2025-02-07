@@ -3,8 +3,10 @@
 name: Validate
 
 on:
-  pull_request:
-    branches: [master]
+  push:
+    branches: [verify/enable-retain-option-with-layer]
+  # pull_request:
+  #   branches: [master]
 
 env:
   FORCE_COLOR: 1
