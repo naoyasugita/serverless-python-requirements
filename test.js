@@ -1,22 +1,23 @@
 const crossSpawn = require('cross-spawn');
 const glob = require('glob-all');
 const JSZip = require('jszip');
-const sha256File = require('sha256-file');
+// const sha256File = require('sha256-file');
 const tape = require('tape-promise/tape');
 
 const {
-  chmodSync,
+  // chmodSync,
   removeSync,
   readFile,
-  copySync,
-  writeFileSync,
-  statSync,
-  pathExistsSync,
+  // copySync,
+  // writeFileSync,
+  // statSync,
+  // pathExistsSync,
 } = require('fs-extra');
 const { quote } = require('shell-quote');
 const { sep } = require('path');
 
-const { getUserCachePath, sha256Path } = require('./lib/shared');
+// const { getUserCachePath, sha256Path } = require('./lib/shared');
+const { getUserCachePath } = require('./lib/shared');
 
 const initialWorkingDir = process.cwd();
 
@@ -53,7 +54,7 @@ const mkCommand =
 const sls = mkCommand('sls');
 const git = mkCommand('git');
 const npm = mkCommand('npm');
-const perl = mkCommand('perl');
+// const perl = mkCommand('perl');
 
 const setup = () => {
   removeSync(getUserCachePath());
@@ -128,44 +129,44 @@ const test = (desc, func, opts = {}) =>
     }
   });
 
-const availablePythons = (() => {
-  const binaries = [];
-  const mapping = {};
-  if (process.env.USE_PYTHON) {
-    binaries.push(
-      ...process.env.USE_PYTHON.split(',').map((v) => v.toString().trim())
-    );
-  } else {
-    // For running outside of CI
-    binaries.push('python');
-  }
-  const exe = process.platform === 'win32' ? '.exe' : '';
-  for (const bin of binaries) {
-    const python = `${bin}${exe}`;
-    const { stdout, status } = crossSpawn.sync(python, [
-      '-c',
-      'import sys; sys.stdout.write(".".join(map(str, sys.version_info[:2])))',
-    ]);
-    const ver = stdout && stdout.toString().trim();
-    if (!status && ver) {
-      for (const recommend of [ver, ver.split('.')[0]]) {
-        if (!mapping[recommend]) {
-          mapping[recommend] = python;
-        }
-      }
-    }
-  }
-  if (!Object.entries(mapping).length) {
-    throw new Error('No pythons found');
-  }
-  return mapping;
-})();
+// const availablePythons = (() => {
+//   const binaries = [];
+//   const mapping = {};
+//   if (process.env.USE_PYTHON) {
+//     binaries.push(
+//       ...process.env.USE_PYTHON.split(',').map((v) => v.toString().trim())
+//     );
+//   } else {
+//     // For running outside of CI
+//     binaries.push('python');
+//   }
+//   const exe = process.platform === 'win32' ? '.exe' : '';
+//   for (const bin of binaries) {
+//     const python = `${bin}${exe}`;
+//     const { stdout, status } = crossSpawn.sync(python, [
+//       '-c',
+//       'import sys; sys.stdout.write(".".join(map(str, sys.version_info[:2])))',
+//     ]);
+//     const ver = stdout && stdout.toString().trim();
+//     if (!status && ver) {
+//       for (const recommend of [ver, ver.split('.')[0]]) {
+//         if (!mapping[recommend]) {
+//           mapping[recommend] = python;
+//         }
+//       }
+//     }
+//   }
+//   if (!Object.entries(mapping).length) {
+//     throw new Error('No pythons found');
+//   }
+//   return mapping;
+// })();
 
-const getPythonBin = (version) => {
-  const bin = availablePythons[String(version)];
-  if (!bin) throw new Error(`No python version ${version} available`);
-  return bin;
-};
+// const getPythonBin = (version) => {
+//   const bin = availablePythons[String(version)];
+//   if (!bin) throw new Error(`No python version ${version} available`);
+//   return bin;
+// };
 
 const listZipFiles = async function (filename) {
   const file = await readFile(filename);
@@ -173,19 +174,19 @@ const listZipFiles = async function (filename) {
   return Object.keys(zip.files);
 };
 
-const listZipFilesWithMetaData = async function (filename) {
-  const file = await readFile(filename);
-  const zip = await new JSZip().loadAsync(file);
-  return Object(zip.files);
-};
+// const listZipFilesWithMetaData = async function (filename) {
+//   const file = await readFile(filename);
+//   const zip = await new JSZip().loadAsync(file);
+//   return Object(zip.files);
+// };
 
-const listRequirementsZipFiles = async function (filename) {
-  const file = await readFile(filename);
-  const zip = await new JSZip().loadAsync(file);
-  const reqsBuffer = await zip.file('.requirements.zip').async('nodebuffer');
-  const reqsZip = await new JSZip().loadAsync(reqsBuffer);
-  return Object.keys(reqsZip.files);
-};
+// const listRequirementsZipFiles = async function (filename) {
+//   const file = await readFile(filename);
+//   const zip = await new JSZip().loadAsync(file);
+//   const reqsBuffer = await zip.file('.requirements.zip').async('nodebuffer');
+//   const reqsZip = await new JSZip().loadAsync(reqsBuffer);
+//   return Object.keys(reqsZip.files);
+// };
 
 const canUseDocker = () => {
   let result;
